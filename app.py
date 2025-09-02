@@ -1,5 +1,5 @@
 # app.py
-# NYC Restaurant & Bar Navigator – Modern Landing (Streamlit)
+# NYC Restaurant & Bar Navigator – Modern Landing (higher contrast)
 
 from __future__ import annotations
 
@@ -34,85 +34,107 @@ def inject_css():
     st.markdown("""
     <style>
       :root{
+        /* Same palette, boosted contrast */
         --bg:#0b1220;
-        --bg-2:#0e1626;
         --panel:#0f192c;
-        --text:#f8fafc;
-        --muted:#9aa6b2;
-        --brand:#0ea5e9;
-        --brand-2:#7c3aed;
+        --text:#F5FAFF;             /* brighter text */
+        --muted:#C4D0DB;            /* brighter muted */
+        --brand:#0ea5e9;            /* cyan */
+        --brand-2:#7c3aed;          /* violet */
         --ok:#22c55e;
-        --card:rgba(255,255,255,.04);
-        --stroke:rgba(148,163,184,.18);
-        --glass:rgba(13,20,35,.55);
+        --stroke:rgba(148,163,184,.32);   /* stronger stroke */
+        --card:rgba(255,255,255,.08);     /* brighter card glass */
+        --glass:rgba(13,20,35,.72);       /* slightly more opaque */
       }
-      .stApp { background: radial-gradient(1000px 500px at 20% -10%, rgba(124,58,237,.15), transparent 50%),
-                           radial-gradient(1200px 600px at 120% 0%, rgba(14,165,233,.15), transparent 50%),
-                           var(--bg); }
-      .block-container{padding-top:1.2rem; max-width:1100px;}
+
+      .stApp {
+        color: var(--text);
+        background: radial-gradient(900px 480px at 15% -10%, rgba(124,58,237,.22), transparent 50%),
+                    radial-gradient(1100px 560px at 120% 0%, rgba(14,165,233,.22), transparent 55%),
+                    var(--bg);
+      }
+
+      .block-container{padding-top:1.0rem; max-width:1100px;}
+      p, li { line-height: 1.55; }
+
       /* Top nav */
       .topnav{
         position: sticky; top: 0; z-index: 50;
-        backdrop-filter: saturate(180%) blur(8px);
-        background: linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.6));
+        backdrop-filter: saturate(180%) blur(10px);
+        background: linear-gradient(180deg, rgba(11,18,32,.95), rgba(11,18,32,.65));
         border-bottom:1px solid var(--stroke);
-        padding: .7rem 0 .6rem 0; margin-bottom: .6rem;
+        padding:.75rem 0 .65rem 0; margin-bottom:.8rem;
       }
-      .brand{font-weight:700;font-size:1.05rem; letter-spacing:.2px}
+      .brand{font-weight:800;font-size:1.06rem; letter-spacing:.2px}
       .navright a{
-        text-decoration:none; color:var(--text); opacity:.85; margin-left:14px; font-size:.95rem;
+        text-decoration:none; color:var(--text); opacity:.96; margin-left:16px; font-size:1rem;
+        padding:6px 8px; border-radius:10px;
       }
-      .navright a.active{color:var(--brand); opacity:1; font-weight:600}
+      .navright a:hover{ background: rgba(255,255,255,.06); }
+      .navright a.active{ color:#E2F3FF; background: rgba(14,165,233,.18); border:1px solid rgba(14,165,233,.45); }
+
       /* Hero */
       .hero{
-        position:relative; overflow:hidden;
         border:1px solid var(--stroke); border-radius:22px;
-        background: linear-gradient(135deg, rgba(14,165,233,.16), rgba(124,58,237,.14)) , var(--glass);
-        padding: 26px 26px 22px 26px; box-shadow: 0 20px 40px rgba(2,8,23,.35);
+        background: linear-gradient(135deg, rgba(14,165,233,.22), rgba(124,58,237,.20)), var(--glass);
+        padding: 28px 26px 24px 26px; box-shadow: 0 22px 44px rgba(2,8,23,.45);
       }
       .pill{
         display:inline-flex; gap:8px; align-items:center;
-        padding:6px 10px; border-radius:999px;
-        background:rgba(14,165,233,.18); border:1px solid rgba(14,165,233,.35);
-        color:var(--text); font-size:.82rem; margin-bottom:8px;
+        padding:7px 11px; border-radius:999px;
+        background:rgba(14,165,233,.22); border:1px solid rgba(14,165,233,.50);
+        color:var(--text); font-size:.84rem; margin-bottom:10px; font-weight:600;
       }
-      .headline{font-size:2.2rem; line-height:1.05; margin:.1rem 0 .5rem 0; font-weight:800;}
-      .sub{color:var(--muted); margin:0 0 .4rem 0}
+      .headline{
+        font-size:2.35rem; line-height:1.08; margin:.1rem 0 .55rem 0; font-weight:900;
+        color: var(--text); text-shadow: 0 1px 0 rgba(0,0,0,.35);
+      }
+      .sub{color:var(--muted); margin:0 0 .6rem 0; font-size:1.05rem}
+
+      /* Buttons (higher contrast) */
       .cta{
-        display:inline-block; padding:12px 16px; border-radius:12px;
+        display:inline-block; padding:13px 18px; border-radius:12px;
         background:linear-gradient(135deg, var(--brand), #22d3ee);
-        color:#06121f; font-weight:700; text-decoration:none;
-        border:1px solid rgba(255,255,255,.18); box-shadow:0 10px 30px rgba(14,165,233,.35);
+        color:#07131F; font-weight:800; text-decoration:none; font-size:1rem;
+        border:1px solid rgba(255,255,255,.22); box-shadow:0 12px 34px rgba(14,165,233,.45);
       }
+      .cta:hover{ filter: brightness(1.05); transform: translateY(-1px); transition: all .15s ease-out; }
+
+      .btn-secondary{
+        display:inline-block; padding:12px 16px; border-radius:12px;
+        background:rgba(255,255,255,.08); border:1px solid var(--stroke); color:var(--text);
+        text-decoration:none; font-weight:700;
+      }
+      .btn-secondary:hover{ background: rgba(255,255,255,.12); }
+
+      /* Sections & cards */
       .sec-grid{display:grid; grid-template-columns: repeat(3,1fr); gap:16px;}
-      .card{
-        border:1px solid var(--stroke); background:var(--card);
-        border-radius:16px; padding:16px; height:100%;
-      }
-      .muted{ color:var(--muted); }
+      .card{ border:1px solid var(--stroke); background:var(--card); border-radius:16px; padding:16px; height:100%; }
       .badge{
         display:inline-flex; align-items:center; gap:8px;
-        border:1px solid var(--stroke); padding:6px 10px; border-radius:999px;
-        margin-right:8px; margin-bottom:8px; font-size:.9rem;
+        border:1px solid var(--stroke); padding:7px 11px; border-radius:999px;
+        margin-right:8px; margin-bottom:8px; font-size:.95rem; font-weight:600;
       }
-      .section-title{ font-size:1.35rem; font-weight:800; margin:.6rem 0 .4rem 0; }
-      .divider{ height:1px; background:var(--stroke); margin:18px 0; }
+      .muted{ color:var(--muted); }
+      .section-title{ font-size:1.45rem; font-weight:900; margin:.8rem 0 .5rem 0; }
+      .divider{ height:1px; background:var(--stroke); margin:20px 0; }
       .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
-      .kicker{color:#a5b4fc; font-weight:700; font-size:.9rem; letter-spacing:.06em;}
-      .footer{margin: 22px 0 30px 0; color:var(--muted); font-size:.9rem}
-      /* Buttons */
-      .btn-secondary{
-        display:inline-block; padding:10px 14px; border-radius:12px;
-        background:rgba(255,255,255,.04); border:1px solid var(--stroke); color:var(--text);
-        text-decoration:none;
-      }
-      /* Hide default sidebar toggle */
+      .kicker{color:#c7d2fe; font-weight:800; font-size:.92rem; letter-spacing:.06em;}
+
+      .footer{margin: 24px 0 30px 0; color:var(--muted); font-size:.95rem}
+
+      /* Hide default sidebar & show anchors nicely */
       [data-testid="collapsedControl"], [data-testid="stSidebar"] { display:none; }
+
+      /* Inputs: larger labels for readability */
+      label, .stTextInput label, .stSelectbox label, .stTextArea label { font-weight:700; color:#ECF3FF; }
+
       /* Honeypot hide */
       label[for="honeypot"], input#honeypot {position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
+
       @media(max-width:900px){
         .sec-grid, .pricing { grid-template-columns: 1fr; }
-        .headline{font-size:1.8rem;}
+        .headline{font-size:1.9rem;}
       }
     </style>
     """, unsafe_allow_html=True)
@@ -180,7 +202,7 @@ def top_nav(active:str):
         <div class="navright">
           <a href="?page=landing" class="{ 'active' if active=='landing' else ''}">Landing</a>
           <a href="?page=about" class="{ 'active' if active=='about' else ''}">About</a>
-          <a href="#lead-form" class="">Join Waitlist</a>
+          <a href="#lead-form">Join Waitlist</a>
         </div>
       </div>
     </div>
@@ -192,7 +214,7 @@ def hero():
       <div class="pill">NYC Restaurants & Bars · Early Access ✨</div>
       <h1 class="headline">Open your spot without opening a law book.</h1>
       <p class="sub">AI that turns NYC permits into a personalized, step-by-step roadmap — with official links and timelines.</p>
-      <div style="display:flex;gap:10px;margin-top:8px;">
+      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
         <a class="cta" href="#lead-form">Request Early Access</a>
         <a class="btn-secondary" href="?page=about">Learn more</a>
       </div>
@@ -201,7 +223,7 @@ def hero():
 
 def trust_band():
     st.markdown("""
-    <div class="sec-grid" style="margin-top:12px;">
+    <div class="sec-grid" style="margin-top:14px;">
       <div class="card"><b>🔒 Privacy-first</b><br><span class="muted">We only use your info for updates.</span></div>
       <div class="card"><b>🏙️ NYC-specific</b><br><span class="muted">Built for DOH, FDNY, DOB, SLA, DOT.</span></div>
       <div class="card"><b>⚡ AI-native</b><br><span class="muted">Clear guidance with citations — not generic checklists.</span></div>
@@ -402,17 +424,13 @@ def main():
     st.set_page_config(page_title=f"{APP_NAME} · Early Access", page_icon="🍽️", layout="wide")
     inject_css()
 
-    # Basic querystring nav
+    # Querystring nav
     qs = st.query_params
     page = qs.get("page", ["landing"])[0] if isinstance(qs.get("page"), list) else qs.get("page","landing")
     if page not in ("landing","about"): page = "landing"
 
     top_nav(page)
-
-    if page == "landing":
-        landing_page()
-    else:
-        about_page()
+    landing_page() if page=="landing" else about_page()
 
 if __name__ == "__main__":
     main()
