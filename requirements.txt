@@ -1,0 +1,8 @@
+# requirements.txt
+streamlit>=1.33
+pandas>=2.1
+requests>=2.31
+
+# Optional (only needed if you want Google Sheets integration)
+gspread>=6.0.0
+oauth2client>=4.1.3
