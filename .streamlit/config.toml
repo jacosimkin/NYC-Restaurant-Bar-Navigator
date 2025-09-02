@@ -1,0 +1,8 @@
+ .streamlit/config.toml
+
+[theme]
+primaryColor = "#0EA5E9"           # Cyan accent
+backgroundColor = "#0B1220"        # Dark navy background
+secondaryBackgroundColor = "#121A2A"  # Slightly lighter panels
+textColor = "#F8FAFC"              # Near-white text
+font = "sans serif"                # Clean modern font
