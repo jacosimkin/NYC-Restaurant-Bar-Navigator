@@ -1,5 +1,5 @@
 # app.py
-# NYC Restaurant & Bar Navigator – Split Hero + Gated Business Plan Template
+# NYC Restaurant & Bar Navigator – Split Hero, High Contrast, CTA-styled Submit
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import streamlit as st
 
 # Optional deps
 try:
-    import requests  # for webhook
+    import requests  # webhook
 except Exception:
     requests = None
 
@@ -37,22 +37,28 @@ def inject_css():
         --bg:#0b1220;
         --text:#F5FAFF;
         --muted:#C4D0DB;
-        --brand:#0ea5e9;     /* cyan */
-        --violet:#7c3aed;    /* violet */
+        --brand:#0ea5e9;
+        --violet:#7c3aed;
         --stroke:rgba(148,163,184,.32);
         --card:rgba(255,255,255,.08);
         --glass:rgba(13,20,35,.72);
       }
-      .stApp {
+
+      /* Page background + ensure page scrolls naturally */
+      html, body, .stApp { height: 100%; }
+      body {
         color: var(--text);
-        background: radial-gradient(900px 480px at 15% -10%, rgba(124,58,237,.22), transparent 50%),
-                    radial-gradient(1100px 560px at 120% 0%, rgba(14,165,233,.22), transparent 55%),
-                    var(--bg);
+        background:
+          radial-gradient(900px 480px at 15% -10%, rgba(124,58,237,.22), transparent 50%),
+          radial-gradient(1100px 560px at 120% 0%, rgba(14,165,233,.22), transparent 55%),
+          var(--bg);
+        overflow-y: auto;
       }
+
       .block-container{padding-top:1.0rem; max-width:1150px;}
       p, li { line-height: 1.55; }
 
-      /* Top nav */
+      /* Top nav (sticky but not blocking scroll) */
       .topnav{
         position: sticky; top: 0; z-index: 50;
         backdrop-filter: saturate(180%) blur(10px);
@@ -82,17 +88,6 @@ def inject_css():
       }
       .headline{ font-size:2.15rem; line-height:1.08; margin:.2rem 0 .55rem 0; font-weight:900; }
       .sub{ color:var(--muted); font-size:1.05rem; margin:0 0 .6rem 0; }
-      .cta{
-        display:inline-block; padding:13px 18px; border-radius:12px;
-        background:linear-gradient(135deg, var(--brand), #22d3ee);
-        color:#06131f; font-weight:800; text-decoration:none; font-size:1rem;
-        border:1px solid rgba(255,255,255,.22); box-shadow:0 12px 34px rgba(14,165,233,.45);
-      }
-      .btn-secondary{
-        display:inline-block; padding:12px 16px; border-radius:12px;
-        background:rgba(255,255,255,.08); border:1px solid var(--stroke); color:var(--text);
-        text-decoration:none; font-weight:700;
-      }
 
       .card{ border:1px solid var(--stroke); background:var(--card); border-radius:16px; padding:16px; height:100%; }
       .sec-grid{display:grid; grid-template-columns: repeat(3,1fr); gap:16px;}
@@ -106,12 +101,29 @@ def inject_css():
       }
       .footer{margin: 24px 0 30px 0; color:var(--muted); font-size:.95rem}
 
-      /* Hide default sidebar */
+      /* Hide default sidebar toggle */
       [data-testid="collapsedControl"], [data-testid="stSidebar"] { display:none; }
-      /* Inputs: readable labels */
+
+      /* Form labels more readable */
       label, .stTextInput label, .stSelectbox label, .stTextArea label { font-weight:700; color:#ECF3FF; }
-      /* Honeypot hide */
-      label[for="honeypot"], input#honeypot {position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
+
+      /* Streamlit submit buttons -> cyan gradient CTA */
+      .stButton > button, .stForm button[kind="primary"] {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255,255,255,.22) !important;
+        background: linear-gradient(135deg, var(--brand), #22d3ee) !important;
+        color: #06131f !important;
+        font-weight: 800 !important;
+        box-shadow: 0 12px 34px rgba(14,165,233,.45);
+      }
+      .stButton > button:hover, .stForm button[kind="primary"]:hover {
+        filter: brightness(1.05); transform: translateY(-1px);
+      }
+
+      /* Honeypot fully hidden & not focusable */
+      label[for="honeypot"], input#honeypot { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
 
       @media(max-width:980px){
         .sec-grid, .pricing { grid-template-columns: 1fr; }
@@ -140,7 +152,7 @@ def persist_to_csv(record:Dict[str,Any])->bool:
 
 def post_webhook(record:Dict[str,Any])->None:
     if not requests or os.getenv("USE_WEBHOOK","false").lower()!="true": return
-    url=os.getenv("WEBHOOK_URL","").strip(); 
+    url=os.getenv("WEBHOOK_URL","").strip()
     if not url: return
     try: requests.post(url, json=record, timeout=10)
     except Exception: pass
@@ -176,7 +188,6 @@ def push_google_sheet(record:Dict[str,Any])->None:
 # ------------------------------- CONTENT -------------------------------------
 
 def business_plan_template_md() -> str:
-    """Simple, clean template the user can download after signup."""
     return f"""# NYC Restaurant & Bar – Business Plan Template
 
 **Owner:**  
@@ -263,7 +274,6 @@ def top_nav(active:str):
 # ------------------------------- PAGES ---------------------------------------
 
 def landing_page():
-    # Split hero: left copy, right form card
     st.markdown('<a name="top"></a>', unsafe_allow_html=True)
     with st.container():
         st.markdown('<section class="hero">', unsafe_allow_html=True)
@@ -274,19 +284,17 @@ def landing_page():
                 <h1 class="headline">Open your spot without opening a law book.</h1>
                 <p class="sub">AI that turns NYC permits into a personalized, step-by-step roadmap — with official links and timelines.</p>
                 <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
-                    <a class="cta" href="#lead-form">Get My Roadmap</a>
-                    <a class="btn-secondary" href="?page=about">Learn more</a>
+                    <a class="st-a cta" href="#lead-form">Get My Roadmap</a>
+                    <a class="st-a btn-secondary" href="?page=about">Learn more</a>
                 </div>
+                <div style='height:6px'></div>
+                <span style='color:#dbeafe;font-weight:700'>Designed in NYC</span> · Backed by DOH · FDNY · DOB · SLA · DOT citations
             """, unsafe_allow_html=True)
-            st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-            st.markdown(
-                "<span style='color:#dbeafe;font-weight:700'>Designed in NYC</span> · Backed by DOH · FDNY · DOB · SLA · DOT citations",
-                unsafe_allow_html=True,
-            )
         with col_right:
             st.markdown('<a name="lead-form"></a>', unsafe_allow_html=True)
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown("**Join the NYC launch list**  \nTell us about your concept.")
+
             if "visit_ts" not in st.session_state: st.session_state.visit_ts=time.time()
             with st.form("waitlist", clear_on_submit=False):
                 name = st.text_input("First & Last Name*").strip()
@@ -296,15 +304,20 @@ def landing_page():
                 alcohol = st.selectbox("Will you serve alcohol?*", ["Yes","No"])
                 timeframe = st.selectbox("Estimated opening*", ["Now","1–3 months","3–6 months","Exploring"])
                 notes = st.text_area("Notes (optional)", height=70, placeholder="Concept, size, unique angle…")
-                hp = st.text_input(" ", key="honeypot", label_visibility="hidden")
+
+                # Honeypot fully disabled so Enter doesn't focus/submit it
+                hp = st.text_input(" ", key="honeypot", label_visibility="hidden", disabled=True)
+
                 ok = st.checkbox("I agree to be contacted about early access and product updates.", value=True)
-                submit = st.form_submit_button("Get My Roadmap ✉️")
+
+                # Primary submit button (styled via CSS)
+                submit = st.form_submit_button("🚀 Get My Roadmap", use_container_width=True)
+
             if submit:
                 errs=[]
                 if not name: errs.append("Full name is required.")
                 if not valid_email(email): errs.append("Please enter a valid email.")
                 if not ok: errs.append("Please agree to be contacted about early access.")
-                if hp: errs.append("Submission flagged. Please try again.")
                 if time.time()-st.session_state.visit_ts < 3: errs.append("Form submitted too quickly. Please try again.")
                 if errs:
                     for e in errs: st.error(e)
@@ -324,6 +337,7 @@ def landing_page():
                         st.balloons()
                     else:
                         st.info("You're already on the list. Your template is ready below.")
+
             # Gated download appears beneath the form card
             if st.session_state.get("signed_up"):
                 st.markdown("<hr/>", unsafe_allow_html=True)
@@ -346,27 +360,27 @@ def landing_page():
     with c2: st.markdown("**🏙️ NYC-specific**  \nBuilt for DOH, FDNY, DOB, SLA, DOT.")
     with c3: st.markdown("**⚡ AI-native**  \nClear guidance with citations — not generic checklists.")
 
-    # Resource teasers (Toast-style)
+    # Resource teasers
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Starter resources</div>', unsafe_allow_html=True)
-    res1, res2, res3 = st.columns(3)
-    with res1:
+    r1, r2, r3 = st.columns(3)
+    with r1:
         st.markdown("**Liquor License: Community Board Prep**")
         st.caption("Checklist for SLA notices, timelines, and typical pitfalls.")
-    with res2:
+    with r2:
         st.markdown("**Health Dept. Pre-Inspection Tips**")
         st.caption("Common DOH findings and how to avoid them.")
-    with res3:
+    with r3:
         st.markdown("**Outdoor Dining Rules (DOT)**")
         st.caption("Clear path requirements, barriers, hours.")
 
     # Pricing preview
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Simple pricing (coming soon)</div>', unsafe_allow_html=True)
-    grid = st.columns(3)
-    with grid[0]: st.markdown("**Free**  \nChecklist preview • Links & citations")
-    with grid[1]: st.markdown("**Pro ($49/mo)**  \nFull roadmap • Doc checklists • Reminders • PDF export")
-    with grid[2]: st.markdown("**Premium ($199/project)**  \nForm autofill • Optional human review • Priority support")
+    g = st.columns(3)
+    with g[0]: st.markdown("**Free**  \nChecklist preview • Links & citations")
+    with g[1]: st.markdown("**Pro ($49/mo)**  \nFull roadmap • Doc checklists • Reminders • PDF export")
+    with g[2]: st.markdown("**Premium ($199/project)**  \nForm autofill • Optional human review • Priority support")
 
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     faq()
@@ -384,16 +398,16 @@ def about_page():
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="section-title">What you’ll get at launch</div>', unsafe_allow_html=True)
-    c1,c2,c3 = st.columns(3)
-    with c1: st.markdown("✅ Tailored permit checklist (restaurants & bars)")
-    with c2: st.markdown("🧾 Required documents + prep templates")
-    with c3: st.markdown("⏱️ Estimated fees & timelines")
+    a,b,c = st.columns(3)
+    with a: st.markdown("✅ Tailored permit checklist (restaurants & bars)")
+    with b: st.markdown("🧾 Required documents + prep templates")
+    with c: st.markdown("⏱️ Estimated fees & timelines")
 
     st.markdown('<div class="section-title">What’s next</div>', unsafe_allow_html=True)
-    c4,c5,c6 = st.columns(3)
-    with c4: st.markdown("🖊️ Autofill common forms")
-    with c5: st.markdown("🔔 Reminders for deadlines & renewals")
-    with c6: st.markdown("👩‍⚖️ Optional human review (vetted partners)")
+    d,e,f = st.columns(3)
+    with d: st.markdown("🖊️ Autofill common forms")
+    with e: st.markdown("🔔 Reminders for deadlines & renewals")
+    with f: st.markdown("👩‍⚖️ Optional human review (vetted partners)")
 
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Join the NYC launch list</div>', unsafe_allow_html=True)
@@ -405,15 +419,18 @@ def about_page():
         email = st.text_input("Email*", key="ae").strip()
         business = st.selectbox("Business Type*", ["Restaurant","Bar","Cafe","Bakery"], key="ab")
         timeframe = st.selectbox("Estimated opening*", ["Now","1–3 months","3–6 months","Exploring"], key="at")
-        hp = st.text_input(" ", key="ahp", label_visibility="hidden")
+
+        # Disabled honeypot avoids "press enter" box
+        hp = st.text_input(" ", key="ahp", label_visibility="hidden", disabled=True)
+
         ok = st.checkbox("I agree to be contacted about early access and product updates.", value=True, key="ap")
-        submit = st.form_submit_button("Get My Roadmap ✉️")
+        submit = st.form_submit_button("🚀 Get My Roadmap", use_container_width=True)
+
     if submit:
         errs=[]
         if not name: errs.append("Full name is required.")
         if not valid_email(email): errs.append("Please enter a valid email.")
         if not ok: errs.append("Please agree to be contacted about early access.")
-        if hp: errs.append("Submission flagged. Please try again.")
         if time.time()-st.session_state.visit_ts_about < 3: errs.append("Form submitted too quickly. Please try again.")
         if errs:
             for e in errs: st.error(e)
@@ -474,20 +491,7 @@ def main():
     page = qs.get("page", ["landing"])[0] if isinstance(qs.get("page"), list) else qs.get("page","landing")
     if page not in ("landing","about"): page = "landing"
 
-    # top nav
-    st.markdown(f"""
-    <div class="topnav">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="brand">🍽️ {APP_NAME}</div>
-        <div class="navright">
-          <a href="?page=landing" class="{ 'active' if page=='landing' else ''}">Landing</a>
-          <a href="?page=about" class="{ 'active' if page=='about' else ''}">About</a>
-          <a href="#lead-form">Join Waitlist</a>
-        </div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    top_nav(page)
     landing_page() if page=="landing" else about_page()
 
 if __name__ == "__main__":
